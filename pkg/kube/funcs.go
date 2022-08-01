@@ -6,6 +6,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	"sort"
 	"time"
 )
 
@@ -62,4 +63,25 @@ func CreateKubePods(podList *v1.PodList) []KubePod {
 	}
 
 	return kubePods
+}
+
+func SortKubePods(kubes []KubePod, sortBy string) []KubePod {
+	sortedPods := kubes
+
+	switch sortBy {
+	case "name.asc":
+		sort.Sort(sortKubeByName(sortedPods))
+	case "age.asc":
+		sort.Sort(sortKubeByAge(sortedPods))
+	case "restarts.asc":
+		sort.Sort(sortKubeByRestarts(sortedPods))
+	case "name.desc":
+		sort.Sort(sort.Reverse(sortKubeByName(sortedPods)))
+	case "age.desc":
+		sort.Sort(sort.Reverse(sortKubeByAge(sortedPods)))
+	case "restart.desc":
+		sort.Sort(sort.Reverse(sortKubeByRestarts(sortedPods)))
+	}
+
+	return sortedPods
 }

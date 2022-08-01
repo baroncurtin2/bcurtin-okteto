@@ -30,5 +30,21 @@ func podsCounter(w http.ResponseWriter, r *http.Request) {
 	pods := kube.GetPods(client, "baroncurtin2")
 	kubePods := kube.CreateKubePods(pods)
 
-	fmt.Fprint(w, "The number of pods running in your current namespace: ", len(kubePods))
+	sortBy := getSortBy(r)
+	sortedPods := kube.SortKubePods(kubePods, sortBy)
+
+	for _, pod := range sortedPods {
+		fmt.Fprintln(w, pod.String())
+	}
+}
+
+func getSortBy(r *http.Request) string {
+	// sortBy is expected to look like field.orderdirection i. e. id.asc
+	sortBy := r.URL.Query().Get("sortBy")
+	if sortBy == "" {
+		// id.asc is the default sort query
+		sortBy = "name.asc"
+	}
+
+	return sortBy
 }

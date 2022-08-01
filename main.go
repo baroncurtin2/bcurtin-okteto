@@ -13,7 +13,8 @@ func main() {
 	http.HandleFunc("/", helloServer)
 
 	// pods api endpoint
-	http.HandleFunc("/pods", podsCounter)
+	http.HandleFunc("/podscount", podsCounter)
+	http.HandleFunc("/podslist", podsDisplay)
 
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		panic(err)
@@ -31,4 +32,25 @@ func podsCounter(w http.ResponseWriter, r *http.Request) {
 	kubePods := kube.CreateKubePods(pods)
 
 	fmt.Fprint(w, "The number of pods running in your current namespace: ", len(kubePods))
+}
+
+func podsDisplay(w http.ResponseWriter, r *http.Request) {
+	cfg := kube.GetInClusterConfig()
+	client := kube.GetKubeClientset(cfg)
+	pods := kube.GetPods(client, "baroncurtin2")
+	kubePods := kube.CreateKubePods(pods)
+
+	// sortBy is expected to look like field.orderdirection i. e. id.asc
+	sortBy := r.URL.Query().Get("sortBy")
+	if sortBy == "" {
+		// id.asc is the default sort query
+		sortBy = "name.asc"
+	}
+
+	sortQuery, err := validateAndReturnSort(sortBy)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 }
