@@ -27,7 +27,7 @@ func helloServer(w http.ResponseWriter, r *http.Request) {
 func podsCounter(w http.ResponseWriter, r *http.Request) {
 	cfg := kube.GetInClusterConfig()
 	client := kube.GetKubeClientset(cfg)
-	pods := kube.GetPods(client)
+	pods := kube.GetPods(client, "baroncurtin2")
 	kubePods := kube.CreateKubePods(pods)
 
 	fmt.Fprint(w, "The number of pods running in your current namespace: ", len(kubePods))

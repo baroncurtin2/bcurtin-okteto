@@ -31,8 +31,8 @@ func GetKubeClientset(cfg *rest.Config) *kubernetes.Clientset {
 }
 
 // GetPods returns a list of pods in the cluster
-func GetPods(cs *kubernetes.Clientset) *v1.PodList {
-	pods, err := cs.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
+func GetPods(cs *kubernetes.Clientset, ns string) *v1.PodList {
+	pods, err := cs.CoreV1().Pods(ns).List(context.TODO(), metav1.ListOptions{})
 
 	if err != nil {
 		panic(err.Error())
