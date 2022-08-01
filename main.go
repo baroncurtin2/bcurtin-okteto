@@ -13,7 +13,8 @@ func main() {
 	http.HandleFunc("/", helloServer)
 
 	// pods api endpoint
-	http.HandleFunc("/pods", podsCounter)
+	http.HandleFunc("/podscount", podsCounter)
+	http.HandleFunc("/podslist", podsDisplay)
 
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		panic(err)
@@ -25,6 +26,15 @@ func helloServer(w http.ResponseWriter, r *http.Request) {
 }
 
 func podsCounter(w http.ResponseWriter, r *http.Request) {
+	cfg := kube.GetInClusterConfig()
+	client := kube.GetKubeClientset(cfg)
+	pods := kube.GetPods(client, "baroncurtin2")
+	kubePods := kube.CreateKubePods(pods)
+
+	fmt.Fprint(w, "The number of pods in the cluser is:", len(kubePods))
+}
+
+func podsDisplay(w http.ResponseWriter, r *http.Request) {
 	cfg := kube.GetInClusterConfig()
 	client := kube.GetKubeClientset(cfg)
 	pods := kube.GetPods(client, "baroncurtin2")
