@@ -77,6 +77,7 @@ func recordMetrics() {
 
 }
 
+// https://prometheus.io/docs/guides/go-application/
 var kubeCount = promauto.NewGauge(
 	prometheus.GaugeOpts{
 		Name: "myapp_pod_count_total",
