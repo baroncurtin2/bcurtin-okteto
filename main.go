@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	kube "github.com/baroncurtin2/bcurtin-okteto/pkg/kube"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net/http"
 	"time"
@@ -68,17 +70,23 @@ func getSortBy(r *http.Request) string {
 func recordMetrics() {
 	go func() {
 		for {
-			getKubeCount()
+			kubeCount.Set(getKubeCount())
 			time.Sleep(60 * time.Second) // refresh pod count every 60 seconds
 		}
 	}()
 
 }
 
-func getKubeCount() int {
+var kubeCount = promauto.NewGauge(
+	prometheus.GaugeOpts{
+		Name: "myapp_pod_count_total",
+		Help: "The total number of pods in the namespace",
+	})
+
+func getKubeCount() float64 {
 	cfg := kube.GetInClusterConfig()
 	client := kube.GetKubeClientset(cfg)
 	pods := kube.GetPods(client, "baroncurtin2")
 	kubePods := kube.CreateKubePods(pods)
-	return len(kubePods)
+	return float64(len(kubePods))
 }
