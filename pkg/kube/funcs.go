@@ -79,7 +79,7 @@ func SortKubePods(kubes []KubePod, sortBy string) []KubePod {
 		sort.Sort(sort.Reverse(sortKubeByName(sortedPods)))
 	case "age.desc":
 		sort.Sort(sort.Reverse(sortKubeByAge(sortedPods)))
-	case "restart.desc":
+	case "restarts.desc":
 		sort.Sort(sort.Reverse(sortKubeByRestarts(sortedPods)))
 	}
 
