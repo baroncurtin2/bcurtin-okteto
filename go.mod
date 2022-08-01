@@ -1,9 +1,8 @@
-module github.com/okteto/go-getting-started
+module github.com/baroncurtin2/bcurtin-okteto
 
 go 1.17
 
 require (
-	github.com/baroncurtin2/bcurtin-okteto v0.0.0-20220801010848-db0757605d3f
 	k8s.io/api v0.24.3
 	k8s.io/apimachinery v0.24.3
 	k8s.io/client-go v0.24.3
