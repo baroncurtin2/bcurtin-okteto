@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	kube "github.com/baroncurtin2/bcurtin-okteto/pkg/kube"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net/http"
+	"time"
 )
 
 // https://stackoverflow.com/questions/67543729/kubernetes-go-client-to-list-out-pod-details-similar-to-kubectl-get-pods
@@ -15,6 +17,10 @@ func main() {
 	// pods api endpoint
 	http.HandleFunc("/podscount", podsCounter)
 	http.HandleFunc("/podslist", podsDisplay)
+
+	// metrics endpoint
+	recordMetrics()
+	http.Handle("/metrics", promhttp.Handler())
 
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		panic(err)
@@ -57,4 +63,22 @@ func getSortBy(r *http.Request) string {
 	}
 
 	return sortBy
+}
+
+func recordMetrics() {
+	go func() {
+		for {
+			getKubeCount()
+			time.Sleep(60 * time.Second) // refresh pod count every 60 seconds
+		}
+	}()
+
+}
+
+func getKubeCount() int {
+	cfg := kube.GetInClusterConfig()
+	client := kube.GetKubeClientset(cfg)
+	pods := kube.GetPods(client, "baroncurtin2")
+	kubePods := kube.CreateKubePods(pods)
+	return len(kubePods)
 }
